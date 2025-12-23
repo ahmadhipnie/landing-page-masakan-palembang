@@ -16,14 +16,58 @@ document.addEventListener('DOMContentLoaded', () => {
     const summaryTotalElement = document.getElementById('summary-total');
     const successModal = document.getElementById('success-modal');
     const closeSuccessBtn = document.getElementById('close-success');
+    const viewHistoryBtn = document.getElementById('view-history');
+    const clearOrdersBtn = document.getElementById('clear-orders');
+    const ordersSidebar = document.getElementById('orders-sidebar');
+    const closeOrdersSidebarBtn = document.getElementById('close-orders-sidebar');
+    const navHistory = document.getElementById('nav-history');
 
     // State
     let cart = [];
+
+    function toggleOrdersSidebar() {
+        ordersSidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+    }
+
+    function renderOrdersSidebar() {
+        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        const container = document.getElementById('orders-list');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (orders.length === 0) {
+            container.innerHTML = '<p style="text-align:center;color:#777;margin-top:1.5rem;">Belum ada pesanan.</p>';
+            return;
+        }
+
+        orders.slice().reverse().forEach(order => {
+            const card = document.createElement('div');
+            card.className = 'order-card';
+            card.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div style="font-weight:600">${order.id}</div>
+                    <div style="font-size:0.85rem;color:#777">Rp ${order.total.toLocaleString('id-ID')}</div>
+                </div>
+                <div style="font-size:0.85rem;color:#777;margin-top:0.25rem">${new Date(order.date).toLocaleString('id-ID')}</div>
+                <div class="order-items-scroll" style="margin-top:0.4rem;font-size:0.9rem">${order.items.map(i => `<div class="order-item-line">${i.name} x${i.quantity}</div>`).join('')}</div>
+            `;
+            container.appendChild(card);
+        });
+    }
 
     // Functions
     function toggleCart() {
         cartSidebar.classList.toggle('active');
         overlay.classList.toggle('active');
+    }
+
+    function closeAllOverlays() {
+        cartSidebar.classList.remove('active');
+        checkoutModal.classList.remove('active');
+        successModal.classList.remove('active');
+        overlay.classList.remove('active');
+        ordersSidebar.classList.remove('active');
     }
 
     function updateCartUI() {
@@ -127,17 +171,111 @@ document.addEventListener('DOMContentLoaded', () => {
             total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
         };
 
+        // Create order object with ID and timestamp
+        const orderId = 'ORD-' + Date.now();
+        const order = {
+            id: orderId,
+            date: new Date().toISOString(),
+            ...formData
+        };
+
+        // Save to localStorage (dummy persistence)
+        const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+        existingOrders.push(order);
+        localStorage.setItem('orders', JSON.stringify(existingOrders));
+
         // Log to console (dummy data)
-        console.log('Order Data (Dummy):', formData);
+        console.log('Order Data (Dummy):', order);
 
         // Close checkout and show success
         checkoutModal.classList.remove('active');
+        document.getElementById('order-id-msg').textContent = `Nomor pesanan: ${orderId}`;
         successModal.classList.add('active');
 
         // Clear cart after successful order
         cart = [];
         updateCartUI();
+
+        // Update orders list if visible
+        renderOrders();
     }
+
+    // Orders helpers
+    function formatDate(iso) {
+        const d = new Date(iso);
+        return d.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+    }
+    
+    function renderOrders() {
+        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        const container = document.getElementById('orders-list');
+        if (!container) return; // page may not have orders section
+        container.innerHTML = '';
+
+        if (orders.length === 0) {
+            container.innerHTML = '<p style="text-align:center;color:#777;margin-top:2rem;">Belum ada pesanan.</p>';
+            return;
+        }
+
+        orders.slice().reverse().forEach(order => {
+            const card = document.createElement('div');
+            card.className = 'order-card';
+            card.innerHTML = `
+                <div class="order-header">
+                    <div>
+                        <strong>${order.id}</strong>
+                        <div class="order-date">${formatDate(order.date)}</div>
+                    </div>
+                    <div class="order-total">Rp ${order.total.toLocaleString('id-ID')}</div>
+                </div>
+                <div class="order-body">
+                    <div><strong>${order.name}</strong> • ${order.phone}</div>
+                    <div class="order-address">${order.address}</div>
+                    <ul class="order-items">
+                        ${order.items.map(i => `<li>${i.name} x${i.quantity} — Rp ${(i.price * i.quantity).toLocaleString('id-ID')}</li>`).join('')}
+                    </ul>
+                    <div class="order-payment">Metode: ${order.payment}</div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    if (clearOrdersBtn) {
+        clearOrdersBtn.addEventListener('click', () => {
+            if (!confirm('Hapus semua riwayat pesanan?')) return;
+            localStorage.removeItem('orders');
+            renderOrders();
+            renderOrdersSidebar();
+        });
+    }
+
+    if (viewHistoryBtn) {
+        viewHistoryBtn.addEventListener('click', () => {
+            successModal.classList.remove('active');
+            renderOrdersSidebar();
+            toggleOrdersSidebar();
+        });
+    }
+    
+    if (navHistory) {
+        navHistory.addEventListener('click', (e) => {
+            e.preventDefault();
+            renderOrdersSidebar();
+            toggleOrdersSidebar();
+        });
+    }
+    
+    if (closeOrdersSidebarBtn) {
+        closeOrdersSidebarBtn.addEventListener('click', () => {
+            ordersSidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+    }
+
+    // Initialize orders on load
+    renderOrders();
+    renderOrdersSidebar();
 
     function closeSuccess() {
         successModal.classList.remove('active');
@@ -147,11 +285,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event Listeners
     cartBtn.addEventListener('click', toggleCart);
     closeCartBtn.addEventListener('click', toggleCart);
-    overlay.addEventListener('click', toggleCart);
+    overlay.addEventListener('click', closeAllOverlays);
     checkoutBtn.addEventListener('click', openCheckout);
     closeCheckoutBtn.addEventListener('click', closeCheckout);
     checkoutForm.addEventListener('submit', handleCheckoutSubmit);
     closeSuccessBtn.addEventListener('click', closeSuccess);
+
+    // Close modals/sidebars when clicking navigation links (smooth experience)
+    const navAnchors = document.querySelectorAll('.nav-links a[href^="#"]');
+    navAnchors.forEach(a => {
+        // Skip the Riwayat link since it manages its own behavior
+        if (a.id === 'nav-history') return;
+        a.addEventListener('click', () => {
+            // Let default anchor behavior happen (scroll), but ensure UI clean
+            closeAllOverlays();
+        });
+    });
 
     addToCartButtons.forEach(button => {
         button.addEventListener('click', (e) => {

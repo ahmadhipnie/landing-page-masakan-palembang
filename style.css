@@ -10,6 +10,7 @@ body {
     line-height: 1.6;
     color: #333;
     background-color: #f9f9f9;
+    scroll-behavior: smooth; /* smooth navigation when clicking anchors */
 }
 
 a {
@@ -219,6 +220,20 @@ section {
 .menu-info h3 {
     margin-bottom: 0.5rem;
     font-size: 1.2rem;
+}
+
+.menu-desc {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+.menu-ingredients {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 0.8rem;
+    line-height: 1.4;
 }
 
 .menu-info .price {
@@ -677,16 +692,233 @@ section {
     font-size: 1rem;
 }
 
-/* Footer */
-footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 2rem 0;
-    margin-top: auto;
+/* Orders / History */
+.orders {
+    padding: 4rem 0;
 }
 
-/* Responsive */
+.orders-list {
+    display: grid;
+    gap: 0.6rem;
+}
+
+.order-card {
+    background: white;
+    border-radius: 12px;
+    padding: 0.7rem 0.9rem;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.04);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.order-date {
+    font-size: 0.85rem;
+    color: #777;
+}
+
+.order-total {
+    font-weight: 700;
+    color: #d32f2f;
+}
+
+.order-body {
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.order-items {
+    margin: 0.35rem 0;
+    padding-left: 1.05rem;
+}
+
+.order-items-scroll {
+    max-height: 80px; /* adjust as needed */
+    overflow-y: auto;
+    padding-right: 6px; /* for scrollbar spacing */
+}
+
+.order-item-line {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 3px 0;
+}
+
+.order-payment {
+    color: #777;
+    font-size: 0.9rem;
+}
+
+.btn-view-history {
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-view-history:hover {
+    background-color: #115293;
+}
+
+/* Orders Sidebar */
+.orders-sidebar {
+    position: fixed;
+    top: 0;
+    right: -420px;
+    width: 420px;
+    height: 100%;
+    background: white;
+    box-shadow: -2px 0 15px rgba(0,0,0,0.12);
+    z-index: 250;
+    transition: right 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.orders-sidebar.active {
+    right: 0;
+}
+
+.orders-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#close-orders-sidebar {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.orders-list {
+    padding: 1rem 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+    display: block; /* Ensure normal block flow */
+}
+
+.order-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 0.5rem 0.75rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.03);
+    margin-bottom: 0.5rem;
+    flex-shrink: 0; /* Prevent card from shrinking */
+    min-height: auto; /* Allow natural height */
+}
+
+.order-header .order-date {
+    font-size: 0.8rem;
+    color: #777;
+}
+
+.order-items {
+    margin: 0.25rem 0 0; 
+    padding-left: 1rem;
+}
+
+.orders-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #eee;
+}
+
+/* Footer */
+.site-footer {
+    background: #111213;
+    color: #e6e6e6;
+    padding: 3rem 0 1.5rem;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr; /* removed newsletter column */
+    gap: 2rem;
+    align-items: start;
+}
+
+.footer-brand .logo {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.25rem;
+    display: inline-block;
+    margin-bottom: 0.75rem;
+}
+
+.footer-about {
+    color: #cfcfcf;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+}
+
+.socials {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.socials .social {
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+}
+
+.footer-links h4,
+.footer-contact h4 {
+    color: #fff;
+    margin-bottom: 0.6rem;
+}
+
+.footer-links ul {
+    padding-left: 0;
+}
+
+.footer-links li {
+    margin-bottom: 0.45rem;
+}
+
+.footer-links a {
+    color: #dcdcdc;
+    font-size: 0.95rem;
+}
+
+.footer-links a:hover {
+    color: #ffffff;
+}
+
+.footer-contact p {
+    color: #cfcfcf;
+    font-size: 0.95rem;
+    margin-bottom: 0.45rem;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.04);
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    text-align: center;
+}
+
+.footer-bottom p {
+    color: #9e9e9e;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
 @media (max-width: 768px) {
     .hero-content h1 {
         font-size: 2.5rem;
@@ -722,5 +954,14 @@ footer {
     .checkout-container {
         border-radius: 0;
         max-height: 100vh;
+    }
+
+    .orders-sidebar {
+        width: 100%;
+        right: -100%;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
     }
 }
